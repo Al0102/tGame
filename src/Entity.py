@@ -77,7 +77,7 @@ class Entity:
     self.clearImage()
     for i in range(self.rect[1]):
       tGame.render("\033["+str(self.y_pos+i)+';'+str(self.x_pos)+'H'+self.image[i])
-    sys.stdout.flush()
+    tGame.renderCopy()
 
   def clearImage(self):
     for i in range(self.rect[1]):
@@ -101,9 +101,9 @@ class Creature(Entity):
 
     self.punch = Attack(1, 1, self.enemies) # damage and range are arbitrary numbers for testing
   
-  def attack(self):
-    # if attacking != True:
-    #   return
+  def attack(self, attack=None):
+    if not attack:
+        attack = self.punch
     if self.direction == CONTROLS.UP:
       y = self.y_pos-1
       x = self.x_pos+self.midpoint[0]-1
@@ -119,7 +119,7 @@ class Creature(Entity):
     else:
       tGame.render("\033[10;10H")
       tGame.render(str(x)+' '+ str(y))
-    self.punch.update(x,y,self.direction)
+    attack.update(x,y,self.direction)
 
   def collide(self):
     collision = super().collide(self.enemies)
@@ -146,11 +146,12 @@ class Player(Creature):
   TYPE = "Player"
   def __init__(self, enemies, group=[], x=0, y=0):
     super().__init__(15, 10, x=x, y=y, rect=(3,3), image=(" o ","-|-","/ \\"), group=group, enemies=enemies)
+    self.gun = Attack(10, 5, self.enemies, image='.')
 
   def attack(self, key_in):
     if key_in != CONTROLS.ACTION:
       return
-    super().attack()
+    super().attack(self.gun)
   
   def update(self, key):
     super().update()
@@ -160,10 +161,11 @@ class Player(Creature):
 
 
 class Attack(Entity):
-  def __init__(self, damage, range, targets, obstacles=[], rect=(1,1), image=" "):
+  def __init__(self, damage, range_, targets, obstacles=[], rect=(1,1), image=" "):
     super().__init__(rect=rect, image=image)
+    self.can_move = True
     self.damage = damage
-    self.range = range
+    self.range = range_
     self.targets = targets
     self.obstacles = obstacles
 
@@ -176,13 +178,13 @@ class Attack(Entity):
       check_collide = self.collide(self.targets)
       if check_collide:
         check_collide.target_collide.hp -= self.damage
-        tGame.render("\033["+str(check_collide.target_collide.y_pos)+';'+str(check_collide.target_collide.x_pos)+"H"+"\033[1;31m")
+        tGame.render("\033["+str(check_collide.target_collide.y_pos)+';'+str(check_collide.target_collide.x_pos)+"H"+"\033[31m")
         tGame.renderCopy()
         check_collide.target_collide.draw()
         tGame.render("\033[0m")
         break
+      sleep(0.2)
       self.draw()
       self.move(self.direction, redraw=False)
-      sleep(0.2)
     self.clearImage()
 
