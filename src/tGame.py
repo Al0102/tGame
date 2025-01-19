@@ -153,10 +153,6 @@ def merge_ascii_colourmap(image, bitmap):
     return new_image
 
 
-class Map:
-    
-
-
 class KeyboardInput:
     def __init__(self):
         self.pressed = 0

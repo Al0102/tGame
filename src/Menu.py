@@ -28,8 +28,6 @@ class Keypad:
         self.fit = Keypad.FIT.TIGHT
         self.text_colour = [0,0,0]
 
-    def insert_option(self, new_option, index=-1):
-
     '''
     def format(layout, items_per_layer, x, y,
                text_align, padding, fit, text_colour, select_colour)
@@ -61,6 +59,7 @@ class Keypad:
             if not layout in Keypad.LAYOUT:
                 raise Exception(f"Invalid layout option: {layout}. Should be of type Keypad.LAYOUT (HORIZONTAL or VERTICAL)")
             self.layout = layout
+
         if items_per_layer:
             if not (items_per_layer > 0 and items_per_layer <= self.size):
                 raise Exception(f"Invalid value for items_per_layer: {layout}. Should be 0 < (int) <= len(self._options)")
@@ -68,13 +67,16 @@ class Keypad:
             self._layers = self.size//items_per_layer+(1 if self.size%items_per_layer else 0)
         if x: self.x = int(x)
         if y: self.y = int(y)
+
         if text_align:
             if not text_align in Keypad.ALIGN:
                 raise Exception(f"Invalid text_align option: {text_align}. Should be of type Keypad.ALIGN (LEFT,CENTER,or RIGHT)")
             self.text_align = text_align
+
         if padding: self.padding = int(padding)
         if fit and fit in Keypad.FIT:
             self.fit = fit
+
         try:
             if text_colour:
                 for i in range(3):
