@@ -72,7 +72,7 @@ import tGame
 
 print(tGame.import_image(file="images.txt", height=7, start=1, do_colour=True))
 ```
-*output*
+*output\**
 &nbsp; &nbsp;<span style='color:black;'>|||</span>
 <span style='color:black;'>\\\\\\|||///</span>
 <span style='color:yellow;'>┌──┐</span>
@@ -81,7 +81,7 @@ print(tGame.import_image(file="images.txt", height=7, start=1, do_colour=True))
 <span style='color:yellow;'>│</span><span style='color:red;'>\\__/</span><span style='color:yellow;'>│</span>
 <span style='color:yellow;'>└──┘</span>  
 
-**\*somewhat shrunken down because of markdown formatting**
+*\*probably won't show up properly on github*
 
 ### App title
 
