@@ -1,30 +1,34 @@
 import sys, os
 import KEY, CONTROLS
 
-if os.name == "posix":
-    import tty, termios
-    POSIX = True
-    WINDOWS = False
-else:
-    import msvcrt
-    WINDOWS = True
-    POSIX = False
-
-render_buffer = ""
 
 def init():
-    global render_buffer
+    global render_buffer, POSIX, WINDOWS
 
     # Posix systems  - i.e mac/linux
-    if POSIX:
+    if os.name == "posix":
+        global tty, termios
+        import tty, termios
+
         global fd, old_settings
+
         fd = sys.stdin.fileno()
         old_settings =  termios.tcgetattr(fd)
+
+        WINDOWS = False
+        POSIX = True
+
+    else:
+        global msvcrt
+        import msvcrt
+        WINDOWS = True
+        POSIX = False
 
     render_buffer = ""
 
     render("\033[7h")
     renderCopy()
+
 
 def clearRenderBuffer():
     global render_buffer
@@ -40,6 +44,7 @@ def renderCopy():
     sys.stdout.write(render_buffer)
     sys.stdout.flush()
     clearRenderBuffer()
+
 
 def moveCursor(direction: str, amount=1):
     """
@@ -58,11 +63,13 @@ def hideCursor():
 def showCursor():
     render("\033[?25h")
 
+
 def screenClear():
     render("\033[2J")
 
 def setTitle(title):
     render("\033]0;"+title+"\x07")
+
 
 '''
 import_image(file, height, start, do_colour)
@@ -78,7 +85,7 @@ import_image(file, height, start, do_colour)
         height (int)
           - Height of ascii image (number of lines in file)
         start (int)
-          - default: 0
+          - default: 1
           - The first line in file to start taking in input
         do_colour (bool)
           - default: False
@@ -87,7 +94,8 @@ import_image(file, height, start, do_colour)
             argument when it calls: merge_ascii_colourmap()
     
 '''
-def import_image(file, height, start=0, do_colour=False):
+def import_image(file, height, start=1, do_colour=False):
+    start=start-1
     with open (file, 'r', encoding='utf-8') as f:
         file = f.readlines()
         img = ''.join(file[start:start+height])
@@ -135,7 +143,7 @@ def merge_ascii_colourmap(image, bitmap):
         temp_line = bitmap_f[line]
 
         while len(temp_line) > 0:
-            temp_char = temp_line[-1]
+            temp_char = chr(temp_line[-1])
             if temp_char == '8':
                 colour_value = '2'
             elif temp_char == '9':
@@ -157,25 +165,29 @@ class KeyboardInput:
     def __init__(self):
         self.pressed = 0
         self.key_mash_counter = 0
+        self.max_control_code_mash = 5
 
         if POSIX:
             tty.setraw(fd)
 
         # Control codes for POSIX/WINDOWS
         # UP DOWN RIGHT LEFT
-            CONTROL_CODES = tuple(range(65,69))
+            CONTROL_CODES = tuple(range(65,69), 3)
         else:
-            CONTROL_CODES = (72, 80, 77, 75)
-        self.CONTROL_MAP = dict(zip(CONTROL_CODES, (CONTROLS.UP,
-                                                    CONTROLS.DOWN,
-                                                    CONTROLS.RIGHT,
-                                                    CONTROLS.LEFT)))
+            CONTROL_CODES = (72, 80, 77, 75, b'\x03')
+        self.CONTROL_MAP = dict(zip(
+            CONTROL_CODES, (
+                CONTROLS.UP,
+                CONTROLS.DOWN,
+                CONTROLS.RIGHT,
+                CONTROLS.LEFT,
+                KEY.QUIT)))
 
     def _scan_in_control_codes(self, char):
         if char in self.CONTROL_MAP:
             return self.CONTROL_MAP[char]
         self.key_mash_counter += 1
-        return KEY.QUIT if self.key_mash_counter > 5 else 0
+        return KEY.QUIT if self.key_mash_counter > self.max_control_code_mash else 0
         # Uncomment if you want to raise error for control codes that are not coded in yet
         # raise ValueError(f'Invalid control code: {char}')
         
@@ -196,37 +208,33 @@ class KeyboardInput:
         if 32 <= char <= 126:
             self.pressed = char
             self.key_mash_counter = 0
-            return
 
         # Backspace
         elif char == 8:
 # Test -             render("\033[3;5H Backspace")
             self.pressed = KEY.BACKSPACE
             self.key_mash_counter = 0
-            return
         # Tab
         elif char == 9:
 # Test -             render("\033[3;5H TAB")
             self.pressed = KEY.TAB
             self.key_mash_counter = 0
-            return
         # ENTER
         elif char in {10, 13}:
 # Test -             render("\033[3;5H ENTER")
             self.pressed = KEY.ENTER
             self.key_mash_counter = 0
-            return
         # CTRL-C
         if char == 3:
             self.pressed = KEY.QUIT
             self.key_mash_counter = 0
-            return
 
         if POSIX:
             if char == 27:
                 # Control codes
-                next1, next2 = ord(sys.stdin.read(1)), ord(sys.stdin.read(1))
+                next1 = ord(sys.stdin.read(1))
                 if next1 == 91:
+                    next2 = ord(sys.stdin.read(1))
 # Test -                     render("\033[1;5H CONTROL")
                     self.pressed = self._scan_in_control_codes(next2)
                     if self.pressed != 0: self.key_mash_counter = 0
@@ -241,12 +249,11 @@ class KeyboardInput:
 # Test -                             render("<")
 # Test -                         case _:
 # Test -                             render(str(char))
-                    return
-
-                # ESCAPE - If no control codes are inputted,
-                #          ESC is being pressed
-                self.pressed = CONTROLS.ESCAPE
-                return
+                else:
+                    # ESCAPE - If no control codes are inputted,
+                    #          ESC is being pressed
+                    self.pressed = CONTROLS.ESCAPE
+            return self.pressed
 
         # WINDOWS
         else:
@@ -267,14 +274,13 @@ class KeyboardInput:
 # Test -                         render("<")
 # Test -                     case _:
 # Test -                         render(str(char))
-                return
 
             elif char == 27: #ESC
 # Test -                 render("\033[3;5H ESCAPE")
                 self.pressed = CONTROLS.ESCAPE
-                return
+            return self.pressed
 
-        self.pressed = 0
+        self.pressed = KEY.QUIT
 
 if __name__ == "__main__":
     try:
