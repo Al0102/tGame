@@ -15,4 +15,15 @@
  3333333  
  '''
 import tGame
-print(tGame.import_image(file="test.py", height=7, start=2, do_colour=True))
+import KEY, CONTROLS
+
+tGame.init()
+key = tGame.KeyboardInput()
+while key.keyIn() != KEY.K_A:
+    if key.pressed == CONTROLS.DOWN:
+        tGame.setCursor(2, 2)
+        tGame.renderCopy()
+    if key.pressed == CONTROLS.UP:
+        tGame.moveCursor('B', 2)
+
+tGame.end()

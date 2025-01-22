@@ -29,6 +29,11 @@ def init():
     render("\033[7h")
     renderCopy()
 
+def end():
+    if POSIX:
+        import termios
+        termios.tcsetattr(fd,termios.TCSADRAIN, old_settings)
+
 
 def clearRenderBuffer():
     global render_buffer
@@ -54,8 +59,12 @@ def moveCursor(direction: str, amount=1):
       'C' - FORWARD
       'D' - BACK
     """
-    amount = str(amount)
-    render("\033["+amount+direction)
+    if direction not in "ABCD" or len(direction)>1:
+        raise Exception("Invalid Move Cursor Direction")
+    render("\033["+str(amount)+direction)
+
+def setCursor(x: int, y: int):
+    render(f"\033[{y};{x}H")
 
 def hideCursor():
     render("\033[?25l")
