@@ -33,7 +33,7 @@ if __name__ == "__main__":
         def respawn_mob():
             global mob
             mob = mob_factory()
-            return KEY.QUIT
+            return 0
 
         entity = Player(enemy_group)
         mob = mob_factory()
@@ -48,7 +48,7 @@ if __name__ == "__main__":
             options_menu.keypad.format(x=display_centered[0],y=display_centered[1])
             return KEY.QUIT
 
-        options_menu = OptionScreen(["abc", "spawn", "update resolution", "quit"],
+        options_menu = OptionScreen(["start", "spawn", "update resolution", "quit"],
                                     [lambda: KEY.QUIT, respawn_mob, update_screen, game_quit])
 
     

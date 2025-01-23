@@ -1,5 +1,11 @@
 from enum import Enum, auto
-def contrastRGB(colour_rgb):
+
+AVAILABLE_COLOURS = ("BLACK","RED","GREEN","YELLOW","BLUE","MAGENTA","CYAN","WHITE")
+FOREGROUND_COLOURS = {AVAILABLE_COLOURS[i]:f"\033[3{i}m" for i in range(len(AVAILABLE_COLOURS))}
+BACKGROUND_COLOURS = {AVAILABLE_COLOURS[i]:f"\033[4{i}m" for i in range(len(AVAILABLE_COLOURS))}
+
+
+def contrastRGB(colour_rgb:tuple):
     sum_colour = sum(colour_rgb)
     maxi = max(colour_rgb)
     mini = min(colour_rgb)
@@ -8,6 +14,7 @@ def contrastRGB(colour_rgb):
     else:
         return (255-bit8 for bit8 in colour_rgb)
 
+
 def contrast8Bit(colour_8Bit):
     if 16 > colour_8Bit:
         return 15 if colour_8Bit in (0,8) else 0
@@ -15,7 +22,10 @@ def contrast8Bit(colour_8Bit):
         return 15 if (colour_8Bit-16)%36 < 18 else 0
     return 15 if colour_8Bit < 244 else 0
 
+
 COLOUR_OPTION = Enum("COLOUR_OPTION", "FOREGROUND BACKGROUND AUTO_FRONT AUTO_BACK")
+
+
 def getCodeRGB(colour_rgb, option):
     match option:
         case COLOUR_OPTION.FOREGROUND:
@@ -33,7 +43,8 @@ def getCodeRGB(colour_rgb, option):
 
     return foreground+background
 
-def getCode4Bit(colour_4Bit, option, bright=False):
+
+def getCodeBasic(colour_4Bit, option, bright=False):
     brightness = 9 if bright else 3
     match option:
         case COLOUR_OPTION.FOREGROUND:
@@ -49,6 +60,7 @@ def getCode4Bit(colour_4Bit, option, bright=False):
             background = "\033[{}{}m".format(brightness+1, colour_4Bit)
             foreground = "\033[{}{}m".format(brightness, 0 if colour_4Bit in (3,7) else 7)
     return foreground+background
+
 
 def getCode8Bit(colour_8Bit, option):
     match option:
