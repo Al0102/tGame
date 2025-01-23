@@ -148,7 +148,7 @@ class Keypad:
 
         # Pressed action key returns current option (str)
         # Directional input returns Non
-        return self._options[self.index] if displace == 0 else None
+        return (self.index, self._options[self.index]) if displace == 0 else None
 
     def _move_index(self, displacement):
         self.old_index = self.index
