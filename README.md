@@ -4,10 +4,29 @@ Python game engine for terminals
 
 This is very crude, mostly for personal learning, but feel free to test it out.
 
-## Getting Started
+## Running the example (requires [Python 3.10+](https://www.python.org/downloads/))
+
+- Note: the example is very experimental and is a testing ground/debug zone
+- Many inputs going back and forth through menus won't immediately show up on screen
 
 1. **Install**
-`git clone https://github.com/Al0102/CP12-Collab-Assignment.git`
+`git clone https://github.com/Al0102/tGame.git`
+2. **Change Directory**
+`cd ~/path/to/cloned/directory/tGame/examples`
+3. **Run the file**
+Mac/Linux
+`python3 test.py`
+Windows
+`python test.py`
+4. **Mess around!**
+WASD - movement
+SPACE - action/shoot
+ESCAPE - quit (from initial screen), pause (after entering game), resume (from pause menu)
+
+## Getting Started
+
+1. **Install** (requires [Python 3.10+](https://www.python.org/downloads/))
+`git clone https://github.com/Al0102/tGame.git`
 2. **Include**
 
 * copy/move the files into your project or add to PATH
@@ -92,6 +111,12 @@ input_ = tGame.KeyboardInput()
 **clearRenderBuffer()**
 
 * sets `render_buffer` to empty string
+
+### Keybindings and Keyboard keys
+
+- All recognised keys are defined in and can be accessed from `KEY.py` (don't edit)
+   - Examples: `KEY.QUIT`, `KEY.K_A`, and `KEY.K_SPACE`
+- Create keybinds by editing the `CONTROLS.py` file
 
 ### ASCII Images with Colour
 
@@ -356,7 +381,7 @@ start_menu.open_menu(Input)
    - Putting in CONTROLS.ESCAPE will close the menu and return 0
    - Your function options should return KEY.QUIT if the `OptionScreen` should close upon return
 
-### Entities and stuff
+### Entities, events, and stuff
 - It's been almost 2 years since I touched this code so I will leave this to you to decipher
 - I recommend making your own classes for these
 - Take a look at `examples/test.py` for usage
