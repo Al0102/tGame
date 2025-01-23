@@ -18,10 +18,10 @@ Mac/Linux
 `python3 test.py`
 Windows
 `python test.py`
-4. **Mess around!**
-WASD - movement
-SPACE - action/shoot
-ESCAPE - quit (from initial screen), pause (after entering game), resume (from pause menu)
+4. **Mess around!**  
+WASD - movement  
+SPACE - action/shoot  
+ESCAPE - quit (from initial screen), pause (after entering game), resume (from pause menu)  
 
 ## Getting Started
 
