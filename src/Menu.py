@@ -10,11 +10,11 @@ class Keypad:
     ALIGN = Enum('ALIGN', 'LEFT CENTER RIGHT')
     FIT = Enum('FIT', 'TIGHT SIMILAR')
 
-    def __init__(self, x=1, y=1, *options):
-        self.x = x
-        self.y = y
+    def __init__(self, options: iter):
+        self.x = 1
+        self.y = 1
     
-        self._options = options
+        self._options = list(options)
         self.size = len(options)
         self.index = 0
         self.old_index = self.index
@@ -26,7 +26,7 @@ class Keypad:
         self.text_align = Keypad.ALIGN.LEFT
         self.padding = 0
         self.fit = Keypad.FIT.TIGHT
-        self.text_colour = [0,0,0]
+        self.text_colour = [255,255,255]
 
     '''
     def format(layout, items_per_layer, x, y,
@@ -52,7 +52,7 @@ class Keypad:
     '''
     # TODO
     # - formatting for text-align
-    # - padding between options
+    # - fit
     def format(self, layout=0, items_per_layer: int=0, x=0, y=0,
                text_align=0, padding=0, fit=0, text_colour=0):
         if layout:
@@ -62,7 +62,7 @@ class Keypad:
 
         if items_per_layer:
             if not (items_per_layer > 0 and items_per_layer <= self.size):
-                raise Exception(f"Invalid value for items_per_layer: {layout}. Should be 0 < (int) <= len(self._options)")
+                raise Exception(f"Invalid value for items_per_layer: {items_per_layer}. Should be 0 < (int) <= len(self._options)")
             self.items_per_layer = items_per_layer
             self._layers = self.size//items_per_layer+(1 if self.size%items_per_layer else 0)
         if x: self.x = int(x)
@@ -85,20 +85,25 @@ class Keypad:
             raise Exception("Incorrect format for RGB: should be tuple/list of 3 integers")
 
     def draw(self):
-        # Horizontal Layout
-        #   0 1 2
-        #   3 4 5
-        # rows: 2; columns: 3
-        # Vertical Layout
-        #   0 2 4
-        #   1 3 5
-        # rows: 3; columns: 2
+        '''
+        Horizontal Layout
+          0 1 2
+          3 4 5
+        rows: 2; columns: 3
+        Vertical Layout
+          0 3
+          1 4
+          2 5
+        rows: 3; columns: 2
+        '''
         rows = self._layers if self.layout==Keypad.LAYOUT.HORIZONTAL else self.items_per_layer
         columns = self.items_per_layer if self.layout==Keypad.LAYOUT.HORIZONTAL else self._layers
 
         tGame.render(getCodeRGB(self.text_colour, COLOUR_OPTION.FOREGROUND))
         for i in range(rows):
-            tGame.render(f"\033[{self.y+i};{self.x}H")
+            tGame.render(f"\033[{self.y+i+i*self.padding};{self.x}H")
+
+
             for j in range(columns):
                 # layers through times items per layer
                 # plus the depth into the layer
@@ -110,12 +115,20 @@ class Keypad:
                 if index > self.size-1:
                     break
 
+                # Sets highlight for currently hovered option
                 option = self._options[index]
                 if index == self.index:
                     tGame.render(getCodeRGB(self.text_colour, COLOUR_OPTION.AUTO_BACK), str(option), "\033[0m",getCodeRGB(self.text_colour, COLOUR_OPTION.FOREGROUND))
                 else:
                     tGame.render(str(option))
+
+                # Padding
+                if j < columns-1:
+                    tGame.moveCursor('C', self.padding)
+
+        # Reset text style after keypad
         tGame.render("\033[0m")
+
 
     def update(self, input_, draw=True):
         # Inputs UP DOWN RIGHT LEFT ARROW KEYS
@@ -148,7 +161,7 @@ class Keypad:
 
         # Pressed action key returns current option (str)
         # Directional input returns Non
-        return (self.index, self._options[self.index]) if displace == 0 else None
+        return (self.index,self._options[self.index]) if displace == 0 else None
 
     def _move_index(self, displacement):
         self.old_index = self.index
@@ -178,22 +191,21 @@ class Keypad:
 
 class OptionScreen:
   
-    def __init__(self, choices=[], functions=[], **choices_functions):
+    def __init__(self, choices=[], functions=[]):
         if len(choices) != len(functions):
             raise Exception("lengths of choices and function do not match")
 
         self.choices = {choices[i]: functions[i] for i in range(len(choices))}
 
-        if choices_functions:
-            self.choices = self.choices.update(choices_functions)
-
         window_size = os.get_terminal_size()
         display_centered = ((window_size[0]-len(max(self.choices.keys(), key=len)))//2,
                             window_size[1]//len(self.choices))
 
-        self.keypad = Keypad(*display_centered, *self.choices.keys())
+        self.keypad = Keypad(self.choices.keys())
         self.keypad.format(items_per_layer=1,
                            layout=Keypad.LAYOUT.HORIZONTAL,
+                           x=display_centered[0],
+                           y=display_centered[1],
                            text_align=Keypad.ALIGN.CENTER,
                            padding=1,
                            text_colour=(0,255,0))
@@ -213,7 +225,9 @@ class OptionScreen:
                 selected = self.keypad.update(Input.pressed)
                 tGame.renderCopy()
                 if selected != None:
-                    if self.choices[selected]() == KEY.QUIT:
+                    # Runs the function corresponding to the selection
+                    # If function returns KEY.QUIT, close the menu
+                    if self.choices[selected[1]]() == KEY.QUIT:
                         self.close_menu()
                         return selected
 
