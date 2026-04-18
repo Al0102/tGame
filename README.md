@@ -1,6 +1,6 @@
 # tGame
 
-A command-line game engine built with Python and zero external dependencies.
+A library for building command-line games built with Python and zero external dependencies.
 
 This is a basic build made for learning. Feel free to explore and use this however you want.
 
