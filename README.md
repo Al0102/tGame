@@ -1,32 +1,60 @@
 # tGame
 
-Python game engine for terminals
+A command-line game engine built with Python and zero external dependencies.
 
-This is very crude, mostly for personal learning, but feel free to test it out.
+This is a basic build made for learning. Feel free to explore and use this however you want.
 
-## Running the example (requires [Python 3.10+](https://www.python.org/downloads/))
+## Contents
+
+1. [Running the examples](#running-the-example)  
+2. [Using tGame in your own projects](#using-tgame-in-your-own-project)  
+3. [Documentation](#features)  
+    1. [Input](#input)  
+    2. [Printing to the screen](#using-tgamerender)  
+    3. [Keybinds](#keybindings-and-keyboard-keys)
+    4. [Importing ASCII Images](#ascii-images-with-colour)
+    5. [App title](#app-title)
+    6. [Clearing the screen](#clearing-the-screen)
+    7. [Cursor](#cursor)
+4. [Under construction](#incompletepotentially-buggy-features)
+    1. [Colour](#colour)
+    2. [Menus](#menu)
+    3. [Entities and events](#entities-events-and-stuff)
+
+## Running the example
 
 - Note: the example is very experimental and is a testing ground/debug zone
-- Many inputs going back and forth through menus won't immediately show up on screen
+- Inputs going back and forth through menus won't immediately show up on screen
+- Requires [Python 3.10+](https://www.python.org/downloads/)
 
-1. **Install**  
-`git clone https://github.com/Al0102/tGame.git`
-2. **Change Directory**  
-`cd ~/path/to/cloned/directory/tGame/examples`
-3. **Run the file**  
-Mac/Linux  
-`python3 test.py`  
-Windows  
-`python test.py`  
-4. **Mess around!**    
-WASD - movement  
-SPACE - action/shoot  
-ESCAPE - quit (from initial screen), pause (after entering game), resume (from pause menu)  
+1. **Install**
 
-## Getting Started
+    `git clone https://github.com/Al0102/tGame.git`
+
+2. **Change Directory**
+
+    `cd /path/to/cloned/directory/tGame/examples`
+
+3. **Run the file**
+
+    Mac/Linux  
+        `python3 test.py`  
+
+    Windows  
+        `python test.py`  
+
+4. **Mess around!**
+
+    *WASD* - movement  
+    *SPACE* - action/shoot  
+    *ESCAPE* - quit (from initial screen), pause (after entering game), resume (from pause menu)  
+
+## Using tGame in your own project
 
 1. **Install** (requires [Python 3.10+](https://www.python.org/downloads/))  
-`git clone https://github.com/Al0102/tGame.git`  
+
+    `git clone https://github.com/Al0102/tGame.git`
+
 2. **Include**  
 
 * copy/move the files into your project or add to PATH  
@@ -382,6 +410,5 @@ start_menu.open_menu(Input)
    - Your function options should return KEY.QUIT if the `OptionScreen` should close upon return
 
 ### Entities, events, and stuff
-- It's been almost 2 years since I touched this code so I will leave this to you to decipher
-- I recommend making your own classes for these
+- *under construction
 - Take a look at `examples/test.py` for usage
